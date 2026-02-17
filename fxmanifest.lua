@@ -1,51 +1,28 @@
 fx_version 'cerulean'
 game 'gta5'
 
-lua54 'yes'
+name 'KG_Wanted'
+author 'Kaficko Gaming'
+description 'Simple GTA-style wanted stars + police send-to-jail interaction (ESX job)'
 
-author 'KafickoGaming'
-description 'KG_Wanted modular'
-version '1.0.0'
+lua54 'yes'
 
 shared_scripts {
     '@ox_lib/init.lua',
     'config.lua',
-    'shared/sh_constants.lua',
-    'shared/sh_utils.lua',
-    'exports/shared_exports.lua',
-}
-
-server_scripts {
-    -- Používáš-li mysql-async, odkomentuj:
-    -- '@mysql-async/lib/MySQL.lua',
-
-    'server/sv_db.lua',
-    'server/sv_wanted.lua',
-    'server/sv_rewards.lua',
-    'server/sv_crimes.lua',
-    'server/sv_police.lua',
-    'server/sv_lawyer.lua',
-    'server/sv_exports.lua',
-    'server/sv_main.lua',
 }
 
 client_scripts {
-    'client/cl_main.lua',
-    'client/cl_ui.lua',
-    'client/cl_crimes.lua',
-    'client/cl_3d.lua',
-    'client/cl_markers.lua',
-    'client/cl_police_zones.lua',
-    'client/cl_target.lua',      -- ✅ ox_target integrace
-    'client/cl_jail.lua',
-    'client/cl_exports.lua',
+    'client.lua',
+}
+
+server_scripts {
+    'server.lua',
 }
 
 dependencies {
+    'ox_lib',
     'es_extended',
-    'ox_lib'
+    'oxmysql',
+    'ox_target'
 }
-
--- ox_target nedávám do dependencies schválně:
--- je to "optional" – skript si počká, až bude started.
--- Když ho chceš povinně, můžeš ho sem přidat.

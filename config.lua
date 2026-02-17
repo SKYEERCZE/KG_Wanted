@@ -12,14 +12,12 @@ Config.HurtCooldownSeconds = 20
 Config.NotifyOnStarsGain = false
 
 Config.Stars = {
-    -- PVP:
-    HurtPlayer = 1,     -- zatím se u tebe používá jen pro report, můžeš později měnit pravidla
+    HurtPlayer = 1,
     KillPlayer = 2,
 
     HurtPoliceBonus = 1,
     KillPoliceBonus = 2,
 
-    -- Police codex:
     PoliceExtraStars = 1,
 }
 
@@ -94,7 +92,7 @@ Config.Lawyer = {
     CooldownMinutes = 30,
     CooldownTable = 'kg_wanted_lawyer',
 
-    Mode = 'clear', -- 'clear' nebo 'reduce'
+    Mode = 'clear',
     ReduceBy = 1,
 
     MoneyPerStar = 15000,
@@ -103,11 +101,18 @@ Config.Lawyer = {
     Distance = 2.2,
     ActionTimeMs = 5500,
 
-    RequestLabel = 'Pozadat o ocistu',
+    RequestLabel = 'Požádat o očistu',
     RequestIcon  = 'fa-solid fa-scale-balanced',
 
-    -- jak často server posílá wanted hráčům seznam právníků (aby šel filtrovat ox_target + šipka)
-    SyncSeconds = 5,
+    -- ✅ Highlight lawyer for wanted suspects only
+    Highlight = {
+        Enabled = true,
+        MarkerType = 2,      -- 2 = vertical arrow marker
+        Scale = 0.35,
+        Height = 1.15,
+        MaxDistance = 60.0,
+        ShowText = false,    -- true = show "PRÁVNÍK" 3D text
+    }
 }
 
 -- ✅ POLICE DUTY (ITEMY + přesná hláška)
@@ -127,16 +132,16 @@ Config.PoliceDuty = {
         Mode = 'items',
 
         ItemMap = {
-            driver = { item = 'driver_license', label = 'Ridicak' },
-            weapon = { item = 'weaponlicense',  label = 'Zbrojni prukaz' },
+            driver = { item = 'driver_license', label = 'Řidičák' },
+            weapon = { item = 'weaponlicense',  label = 'Zbrojní průkaz' },
         }
     },
 
     Target = {
         IconOn  = 'fa-solid fa-badge',
         IconOff = 'fa-solid fa-badge',
-        LabelOn  = 'Nastoupit sluzbu LSPD',
-        LabelOff = 'Ukoncit sluzbu LSPD',
+        LabelOn  = 'Nastoupit službu LSPD',
+        LabelOff = 'Ukončit službu LSPD',
     }
 }
 
