@@ -13,11 +13,29 @@ shared_scripts {
 }
 
 client_scripts {
-    'client.lua',
+    'client/_init.lua',
+    'client/threads/position.lua',
+    'client/threads/crime_detection.lua',
+    'client/threads/wanted_3d.lua',
+    'client/threads/lawyer_highlight.lua',
+    'client/police_zones.lua',
+    'client/ui_messages.lua',
+    'client/target.lua',
+    'client/jail.lua',
 }
 
 server_scripts {
-    'server.lua',
+    'server/_init.lua',
+    'server/db.lua',
+    'server/persistence.lua',
+    'server/wanted.lua',
+    'server/happyhour.lua',
+    'server/rewards.lua',
+    'server/police_duty.lua',
+    'server/zones.lua',
+    'server/crime.lua',
+    'server/jail.lua',
+    'server/playerload.lua',
 }
 
 dependencies {
