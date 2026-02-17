@@ -12,9 +12,13 @@ shared_scripts {
     'config.lua',
     'shared/sh_constants.lua',
     'shared/sh_utils.lua',
+    'exports/shared_exports.lua',
 }
 
 server_scripts {
+    -- Používáš-li mysql-async, odkomentuj:
+    -- '@mysql-async/lib/MySQL.lua',
+
     'server/sv_db.lua',
     'server/sv_wanted.lua',
     'server/sv_rewards.lua',
@@ -30,15 +34,18 @@ client_scripts {
     'client/cl_ui.lua',
     'client/cl_crimes.lua',
     'client/cl_3d.lua',
-    'client/cl_police_zones.lua',
-    'client/cl_target.lua',
     'client/cl_markers.lua',
+    'client/cl_police_zones.lua',
+    'client/cl_target.lua',      -- ✅ ox_target integrace
     'client/cl_jail.lua',
     'client/cl_exports.lua',
 }
 
 dependencies {
     'es_extended',
-    'ox_lib',
-    'ox_target' 
+    'ox_lib'
 }
+
+-- ox_target nedávám do dependencies schválně:
+-- je to "optional" – skript si počká, až bude started.
+-- Když ho chceš povinně, můžeš ho sem přidat.
