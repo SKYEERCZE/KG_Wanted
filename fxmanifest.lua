@@ -22,6 +22,7 @@ client_scripts {
     'client/ui_messages.lua',
     'client/target.lua',
     'client/jail.lua',
+    'client/jail_persist.lua',
 }
 
 server_scripts {
@@ -36,6 +37,8 @@ server_scripts {
     'server/crime.lua',
     'server/jail.lua',
     'server/playerload.lua',
+    'server/job_block.lua',
+    'server/jail_persist.lua',
 }
 
 dependencies {

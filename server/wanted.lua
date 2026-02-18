@@ -63,3 +63,4 @@ function KGW.getStars(src)
     local entry = KGW.ensureEntry(src)
     return entry.stars or 0, entry.lastReason or ''
 end
+
