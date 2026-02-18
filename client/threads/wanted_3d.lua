@@ -19,7 +19,7 @@ CreateThread(function()
                             local c = GetEntityCoords(ped)
                             local dist = #(myCoords - c)
                             if dist <= (Config.Visibility.Show3DMaxDistance or 120.0) then
-                                KGW.drawText3D(c.x, c.y, c.z + 1.05, ('WANTED %s'):format(string.rep('★', stars)))
+                                KGW.drawText3D(c.x, c.y, c.z + 1.05, ('WANTED %s'):format(string.rep('⭐', stars)))
                             end
                         end
                     end

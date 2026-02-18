@@ -17,7 +17,7 @@ RegisterNetEvent('kg_wanted:goJail', function(minutes, data)
         end
     end
 
-    KGW.showBigWasted('~r~ZATCEN~s~', ('Zatkl tě: ~w~%s~s~\nDoba: ~w~%d min~s~'):format(officer, minutes), 5000)
+    KGW.showBigWasted('~r~ZATCEN~s~', ('Zatkl te: ~w~%s~s~\nDoba: ~w~%d min~s~'):format(officer, minutes), 5000)
 
     local ped = PlayerPedId()
     SetEntityCoords(ped, dest.x, dest.y, dest.z, false, false, false, true)

@@ -18,6 +18,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
 
     local add = 0
     local reason = ''
+    local extra = ''
 
     if crimeType == 'kill' then
         add = Config.Stars.KillPlayer or 2
@@ -34,6 +35,9 @@ RegisterNetEvent('kg_wanted:crime', function(data)
 
     if add <= 0 then return end
 
+    -- před
+    local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
+
     -- 🔴 POLICE CODEX LOGIKA
     if isCop and victimStars <= 0 then
         add = add + (Config.Stars.PoliceExtraStars or 1)
@@ -42,7 +46,9 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         xAttacker.setJob(Config.UnemployedJob, 0)
         Player(attacker).state.kg_police_duty = false
 
-        -- červená GTA hláška
+        extra = 'Porušil jsi kodex policie. (odebrán police job)'
+
+        -- (nechávám i tvou GTA hlášku)
         TriggerClientEvent('kg_wanted:codexTop', attacker, {
             title = 'KODEX PORUSEN',
             desc = 'Porušil jsi kodex policie.'
@@ -50,4 +56,17 @@ RegisterNetEvent('kg_wanted:crime', function(data)
     end
 
     KGW.addStars(attacker, add, reason)
+
+    -- po
+    local afterStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
+    local realAdded = afterStars - beforeStars
+    if realAdded < 0 then realAdded = 0 end
+
+    -- ✅ OX_LIB notify nahoře uprostřed s reason
+    TriggerClientEvent('kg_wanted:crimeNotify', attacker, {
+        added = realAdded,
+        total = afterStars,
+        reason = reason,
+        extra = extra
+    })
 end)

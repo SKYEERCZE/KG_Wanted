@@ -29,9 +29,9 @@ Config.Persistence = {
 
 Config.Visibility = {
     Show3D = true,
-    Show3DMaxDistance = 120.0,
+    Show3DMaxDistance = 24.5,
 
-    ZoneMinStars = 2,
+    ZoneMinStars = 1,
     ZoneUpdateSeconds = 8,
     ZoneRadius = 220.0,
     ZoneRandomize = true,

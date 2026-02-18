@@ -22,6 +22,7 @@ CreateThread(function()
                             local isLawyer = Player(src).state.kg_isLawyer == true
                             local lawyerStars = tonumber(Player(src).state.kg_wanted or 0) or 0
 
+                            -- ✅ highlight only lawyer who is not wanted
                             if isLawyer and lawyerStars <= 0 then
                                 local c = GetEntityCoords(ped)
                                 local dist = #(myCoords - c)
@@ -30,19 +31,19 @@ CreateThread(function()
                                     local markerType = tonumber(Config.Lawyer.Highlight.MarkerType or 2) or 2
                                     local scale = tonumber(Config.Lawyer.Highlight.Scale or 0.35) or 0.35
 
+                                    -- ✅ ZELENÁ ŠIPKA
                                     DrawMarker(
                                         markerType,
                                         c.x, c.y, c.z + h,
                                         0.0, 0.0, 0.0,
                                         0.0, 0.0, 0.0,
                                         scale, scale, scale,
-                                        0, 153, 255, 180,
+                                        0, 255, 0, 200, -- green
                                         false, true, 2, false, nil, nil, false
                                     )
 
-                                    if Config.Lawyer.Highlight.ShowText then
-                                        KGW.drawText3D(c.x, c.y, c.z + (h + 0.35), '~b~PRÁVNÍK~s~')
-                                    end
+                                    -- ✅ 3D TEXT NAD ŠIPKOU
+                                    KGW.drawText3D(c.x, c.y, c.z + (h + 0.35), '~g~PRÁVNÍK~s~')
                                 end
                             end
                         end
