@@ -102,3 +102,7 @@ AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
         notify(playerId, ('Stále jsi ve vězení (%ds zbývá).'):format(meta.endAt - os.time()))
     end)
 end)
+
+RegisterNetEvent('kg_wanted:jail:requestTime', function()
+    TriggerClientEvent('kg_wanted:jail:syncTime', source, os.time())
+end)

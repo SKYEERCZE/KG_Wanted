@@ -12,19 +12,12 @@ Config.HurtCooldownSeconds = 20
 Config.NotifyOnStarsGain = false
 
 Config.Stars = {
-    -- pěstí/hit nechceš počítat, ale nechávám hodnotu pro kompatibilitu (server ho ignoruje)
     HurtPlayer = 1,
-
-    -- zabití hráče
     KillPlayer = 2,
 
-    -- přejetí hráče (pokud neumře)
     RunOverPlayer = 1,
-
-    -- krádež NPC vozidla
     StealNpcVehicle = 1,
 
-    -- police codex + extra
     HurtPoliceBonus = 1,
     KillPoliceBonus = 2,
     PoliceExtraStars = 1,
