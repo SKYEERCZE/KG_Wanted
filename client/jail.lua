@@ -1,9 +1,12 @@
+-- KG_Wanted/client/jail.lua
+
 RegisterNetEvent('kg_wanted:goJail', function(minutes, data)
     if not Config.Jail.Enabled then return end
+
     minutes = tonumber(minutes) or 2
     if minutes < 1 then minutes = 1 end
-    data = data or {}
 
+    data = data or {}
     local officer = data.officer or 'Policista'
     local cell = data.cell
 
@@ -22,7 +25,6 @@ RegisterNetEvent('kg_wanted:goJail', function(minutes, data)
     local ped = PlayerPedId()
     SetEntityCoords(ped, dest.x, dest.y, dest.z, false, false, false, true)
     SetEntityHeading(ped, dest.w or 0.0)
-
     ClearPedTasksImmediately(ped)
     SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
 
@@ -49,6 +51,7 @@ RegisterNetEvent('kg_wanted:goJail', function(minutes, data)
             local remainingSec = math.floor(remainingMs / 1000)
             local mm = math.floor(remainingSec / 60)
             local ss = remainingSec % 60
+
             lib.showTextUI(('Zbývající čas ve vězení : %02d:%02d'):format(mm, ss), { position = 'bottom-center' })
         end
 
@@ -68,6 +71,9 @@ RegisterNetEvent('kg_wanted:goJail', function(minutes, data)
     local rc = Config.Jail.ReleaseCoords
     SetEntityCoords(ped, rc.x, rc.y, rc.z, false, false, false, true)
     SetEntityHeading(ped, rc.w or 0.0)
+
+    -- ✅ důležité: server zruší persisted jail
+    TriggerServerEvent('kg_wanted:jailFinished')
 
     lib.notify({ type = 'success', description = 'Propuštěn.' })
 end)

@@ -1,3 +1,5 @@
+-- KG_Wanted/server/crime.lua
+
 RegisterNetEvent('kg_wanted:crime', function(data)
     local attacker = source
     if type(data) ~= 'table' then return end
@@ -35,10 +37,17 @@ RegisterNetEvent('kg_wanted:crime', function(data)
 
     if add <= 0 then return end
 
+    -- ✅ FIX: Policie nedostává wanted za zásah proti hráči, který už je wanted
+    -- (tj. pachatel má hvězdičky)
+    if isCop and victimStars > 0 then
+        return
+    end
+
     -- před
     local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
 
-    -- 🔴 POLICE CODEX LOGIKA
+    -- POLICE CODEX LOGIKA:
+    -- Policajt útočí na nevinného -> bonus hvězdy + okamžité odebrání jobu
     if isCop and victimStars <= 0 then
         add = add + (Config.Stars.PoliceExtraStars or 1)
 
@@ -46,9 +55,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         xAttacker.setJob(Config.UnemployedJob, 0)
         Player(attacker).state.kg_police_duty = false
 
-        extra = 'Porušil jsi kodex policie. (odebrán police job)'
-
-        -- (nechávám i tvou GTA hlášku)
+        extra = 'Porušil jsi kodex policie.\n(odebrán police job)'
         TriggerClientEvent('kg_wanted:codexTop', attacker, {
             title = 'KODEX PORUSEN',
             desc = 'Porušil jsi kodex policie.'

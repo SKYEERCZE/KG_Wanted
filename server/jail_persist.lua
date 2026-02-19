@@ -1,3 +1,5 @@
+-- KG_Wanted/server/jail_persist.lua
+
 local ESX = exports['es_extended']:getSharedObject()
 
 local function notify(src, msg)
@@ -14,26 +16,23 @@ local function getJailMeta(xPlayer)
 
     local endAt = tonumber(meta.endAt or 0) or 0
     if endAt <= 0 then return nil end
+
     return {
         endAt = endAt,
-        reason = tostring(meta.reason or 'VĚZENÍ'),
+        reason = tostring(meta.reason or 'VĚZENÍ')
     }
 end
 
 local function setJailMeta(xPlayer, endAt, reason)
     xPlayer.setMeta('kg_jail', {
         endAt = endAt,
-        reason = reason or 'VĚZENÍ',
+        reason = reason or 'VĚZENÍ'
     })
 end
 
 local function clearJailMeta(xPlayer)
     xPlayer.setMeta('kg_jail', nil)
 end
-
--- ==========================================================
--- EXPORTY - tohle budeš volat z tvého jail systému
--- ==========================================================
 
 exports('SetJail', function(src, seconds, reason)
     seconds = tonumber(seconds or 0) or 0
@@ -45,11 +44,9 @@ exports('SetJail', function(src, seconds, reason)
     local endAt = os.time() + seconds
     setJailMeta(xPlayer, endAt, reason or 'VĚZENÍ')
 
-    -- statebag pro client (rychlá sync)
     Player(src).state:set('kg_jail_endAt', endAt, true)
     Player(src).state:set('kg_jail_reason', reason or 'VĚZENÍ', true)
 
-    -- client ať si to aplikuje hned (teleport, freeze, hud, timer)
     TriggerClientEvent('kg_wanted:jail:apply', src, endAt, reason or 'VĚZENÍ')
     return true
 end)
@@ -77,9 +74,13 @@ exports('IsJailed', function(src)
     return os.time() < meta.endAt
 end)
 
--- ==========================================================
--- RELOG FIX: po playerLoaded zkontrolujeme meta a vrátíme ho do vězení
--- ==========================================================
+-- ✅ client oznámí, že trest doběhl -> server vyčistí meta
+RegisterNetEvent('kg_wanted:jailFinished', function()
+    local src = source
+    exports['KG_Wanted']:ClearJail(src)
+end)
+
+-- ✅ relog fix
 AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
     if not xPlayer then return end
 
@@ -88,16 +89,13 @@ AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
 
     local now = os.time()
     if now >= meta.endAt then
-        -- trest už vypršel během offline
         clearJailMeta(xPlayer)
         return
     end
 
-    -- nastavíme state pro client a pošleme apply
     Player(playerId).state:set('kg_jail_endAt', meta.endAt, true)
     Player(playerId).state:set('kg_jail_reason', meta.reason, true)
 
-    -- malý delay po loadu, aby ped existoval (client si to taky hlídá)
     CreateThread(function()
         Wait(1500)
         TriggerClientEvent('kg_wanted:jail:apply', playerId, meta.endAt, meta.reason)

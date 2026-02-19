@@ -16,6 +16,7 @@ client_scripts {
     'client/_init.lua',
     'client/threads/position.lua',
     'client/threads/crime_detection.lua',
+    'client/threads/vehicle_theft.lua', -- ✅ NEW
     'client/threads/wanted_3d.lua',
     'client/threads/lawyer_highlight.lua',
     'client/police_zones.lua',
@@ -39,6 +40,7 @@ server_scripts {
     'server/playerload.lua',
     'server/job_block.lua',
     'server/jail_persist.lua',
+    'server/auto_unemployed.lua',
 }
 
 dependencies {

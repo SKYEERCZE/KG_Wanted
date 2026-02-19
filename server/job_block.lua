@@ -1,5 +1,6 @@
 -- KG_Wanted/server/job_block.lua
 -- Blokace změny jobu, pokud je hráč WANTED (bez spam loopu)
+-- + výjimka: změna na unemployed je povolená (kvůli auto_unemployed)
 
 local ESX = exports['es_extended']:getSharedObject()
 
@@ -15,7 +16,6 @@ local function notifyCooldown(src, msg, cooldownMs)
     cooldownMs = cooldownMs or 2500
     local now = GetGameTimer()
     local last = lastNotifyAt[src] or 0
-
     if (now - last) < cooldownMs then return end
     lastNotifyAt[src] = now
 
@@ -32,11 +32,15 @@ AddEventHandler('playerDropped', function()
     lastNotifyAt[src] = nil
 end)
 
--- 🔒 Hlavní blokace
 AddEventHandler('esx:setJob', function(source, job, lastJob)
     local src = source
     if not src or src <= 0 then return end
     if not job or not job.name then return end
+
+    -- ✅ Výjimka: unemployed dovolíme i při wanted (auto-unemployed)
+    if job.name == (Config.AutoUnemployed and Config.AutoUnemployed.UnemployedJob or 'unemployed') then
+        return
+    end
 
     -- Pokud právě děláme "vrácení jobu", tak tohle volání ignoruj
     if bypass[src] then
@@ -47,7 +51,7 @@ AddEventHandler('esx:setJob', function(source, job, lastJob)
     local wanted, stars = isPlayerWanted(src)
     if not wanted then return end
 
-    -- Pokud se to snaží nastavit na stejný job jako lastJob, nemá cenu nic řešit
+    -- Když se to snaží nastavit na stejný job jako lastJob, ignor
     if lastJob and lastJob.name and lastJob.name == job.name and (lastJob.grade or 0) == (job.grade or 0) then
         return
     end
@@ -57,9 +61,7 @@ AddEventHandler('esx:setJob', function(source, job, lastJob)
     local xPlayer = ESX.GetPlayerFromId(src)
     if not xPlayer then return end
 
-    -- Vrácení jobu zpět bez loopu
     bypass[src] = true
-
     if lastJob and lastJob.name then
         xPlayer.setJob(lastJob.name, lastJob.grade or 0)
     else

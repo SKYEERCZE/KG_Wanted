@@ -72,6 +72,20 @@ Config.Jail = {
     ReleaseCoords = vector4(427.3, -979.5, 30.7, 90.0),
 }
 
+Config.AutoUnemployed = {
+    Enabled = true,
+    UnemployedJob = 'unemployed',
+
+    -- pokud bys někdy chtěl výjimky:
+    ExemptJobs = {
+        -- police = true,
+        -- lawyer = true,
+    },
+
+    Notify = true,
+    NotifyText = 'Jsi hledaný – automaticky jsi vyhozen z práce.',
+}
+
 Config.Rewards = {
     Enabled = true,
     MoneyPerStar = 20000,

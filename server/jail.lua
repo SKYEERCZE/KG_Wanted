@@ -1,3 +1,5 @@
+-- KG_Wanted/server/jail.lua
+
 local function pickRandomCell()
     local cells = (Config.Jail and Config.Jail.Cells) or nil
     if type(cells) == 'table' and #cells > 0 then
@@ -5,7 +7,8 @@ local function pickRandomCell()
         local c = cells[idx]
         return { x = c.x + 0.0, y = c.y + 0.0, z = c.z + 0.0, w = c.w + 0.0, index = idx }
     end
-    local jc = (Config.Jail and Config.Jail.JailCoords) or vector4(0,0,0,0)
+
+    local jc = (Config.Jail and Config.Jail.JailCoords) or vector4(0, 0, 0, 0)
     return { x = jc.x + 0.0, y = jc.y + 0.0, z = jc.z + 0.0, w = jc.w + 0.0, index = 0 }
 end
 
@@ -20,15 +23,23 @@ RegisterNetEvent('kg_wanted:policeJail', function(targetSrc)
     local stars = KGW.getStars(targetSrc)
     stars = tonumber(stars) or 0
     if stars < (Config.Interaction.MinStarsToJail or 1) then return end
+    if not (Config.Jail and Config.Jail.Enabled) then return end
 
     local minutes = math.max(Config.Jail.MinMinutes or 2, (Config.Jail.MinutesPerStar or 2) * stars)
 
+    -- odměna policajtovi + clear wanted
     KGW.rewardPolice(src, stars)
 
     local officerName = GetPlayerName(src) or 'Policista'
     local cell = pickRandomCell()
 
     KGW.clearWanted(targetSrc)
+
+    -- ✅ PERSISTENCE: nastavíme "jail meta" pro relog a vynutíme apply
+    -- seconds = minutes * 60
+    exports['KG_Wanted']:SetJail(targetSrc, minutes * 60, ('Zatčen (%s)'):format(officerName))
+
+    -- ✅ zachováme původní cinematic / UI / freeze logiku v client/jail.lua
     TriggerClientEvent('kg_wanted:goJail', targetSrc, minutes, { officer = officerName, cell = cell })
 end)
 
@@ -46,6 +57,7 @@ RegisterNetEvent('kg_wanted:lawyerRequestClean', function(lawyerSrc)
         return
     end
 
+    -- Lawyer nesmí být wanted
     local lawyerStars = tonumber(Player(lawyerSrc).state.kg_wanted or 0) or 0
     if lawyerStars > 0 then
         TriggerClientEvent('ox_lib:notify', suspectSrc, { type = 'error', description = 'Právník má wanted – nemůže tě očistit.' })
@@ -60,7 +72,10 @@ RegisterNetEvent('kg_wanted:lawyerRequestClean', function(lawyerSrc)
     end
 
     local suspectEntry = KGW.ensureEntry(suspectSrc)
-    local identifier = suspectEntry.identifier or (KGW.ESX.GetPlayerFromId(suspectSrc) and KGW.ESX.GetPlayerFromId(suspectSrc).identifier) or ''
+    local identifier = suspectEntry.identifier
+        or (KGW.ESX.GetPlayerFromId(suspectSrc) and KGW.ESX.GetPlayerFromId(suspectSrc).identifier)
+        or ''
+
     if identifier == '' then return end
 
     local cdMin = tonumber(Config.Lawyer.CooldownMinutes) or 30
@@ -69,12 +84,18 @@ RegisterNetEvent('kg_wanted:lawyerRequestClean', function(lawyerSrc)
 
     local done = false
     local remaining = 0
+
     KGW.loadLawyerCooldown(identifier, function(last)
         last = tonumber(last) or 0
         local diff = now - last
-        if diff < cdSec then remaining = cdSec - diff else remaining = 0 end
+        if diff < cdSec then
+            remaining = cdSec - diff
+        else
+            remaining = 0
+        end
         done = true
     end)
+
     while not done do Wait(0) end
 
     if remaining > 0 then
@@ -85,6 +106,7 @@ RegisterNetEvent('kg_wanted:lawyerRequestClean', function(lawyerSrc)
     local sp = GetEntityCoords(GetPlayerPed(suspectSrc))
     local lp = GetEntityCoords(GetPlayerPed(lawyerSrc))
     local dist = #(sp - lp)
+
     if dist > (Config.Lawyer.Distance or 2.2) + 0.5 then
         TriggerClientEvent('ox_lib:notify', suspectSrc, { type = 'error', description = 'Musíš být blíž u právníka.' })
         return
@@ -93,6 +115,7 @@ RegisterNetEvent('kg_wanted:lawyerRequestClean', function(lawyerSrc)
     local newStars = 0
     local removed = 0
     local mode = Config.Lawyer.Mode or 'clear'
+
     if mode == 'reduce' then
         local reduceBy = tonumber(Config.Lawyer.ReduceBy) or 1
         newStars = math.max(0, suspectStars - reduceBy)
