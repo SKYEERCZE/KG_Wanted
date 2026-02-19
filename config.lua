@@ -1,7 +1,13 @@
 Config = {}
 
+-- ==========================================================
+-- DEBUG
+-- ==========================================================
 Config.Debug = false
 
+-- ==========================================================
+-- ZÁKLAD
+-- ==========================================================
 Config.PoliceJob = 'police'
 Config.UnemployedJob = 'unemployed'
 
@@ -11,24 +17,41 @@ Config.HurtCooldownSeconds = 20
 -- Pokud už máš wanted v HUDu a nechceš ox_lib notify při přidání hvězd:
 Config.NotifyOnStarsGain = false
 
+-- ==========================================================
+-- HVĚZDY ZA ZLOČINY
+-- ==========================================================
 Config.Stars = {
+
+    -- (momentálně nepoužíváme – pěst bez zabití nedává hvězdy)
     HurtPlayer = 1,
+
+    -- Zabít hráče (pěstí / zbraní)
     KillPlayer = 2,
 
+    -- Přejet hráče vozidlem (bez smrti)
     RunOverPlayer = 1,
+
+    -- Ukrást vozidlo od NPC
     StealNpcVehicle = 1,
 
+    -- Bonus pokud policajt poruší kodex
     HurtPoliceBonus = 1,
     KillPoliceBonus = 2,
     PoliceExtraStars = 1,
 }
 
+-- ==========================================================
+-- PERSISTENCE (DB)
+-- ==========================================================
 Config.Persistence = {
     Enabled = true,
-    Driver = 'auto',
+    Driver = 'auto', -- 'auto' | 'oxmysql' | 'mysql-async'
     Table = 'kg_wanted',
 }
 
+-- ==========================================================
+-- VIDITELNOST
+-- ==========================================================
 Config.Visibility = {
     Show3D = true,
     Show3DMaxDistance = 24.5,
@@ -40,6 +63,9 @@ Config.Visibility = {
     ZoneRandomizeMeters = 60.0,
 }
 
+-- ==========================================================
+-- INTERAKCE (zatčení)
+-- ==========================================================
 Config.Interaction = {
     Distance = 2.2,
     MinStarsToJail = 1,
@@ -47,10 +73,20 @@ Config.Interaction = {
     UseAnimations = true,
     ActionTimeMs = 3500,
 
-    PoliceAnim = { dict = 'mp_arrest_paired', name = 'cop_p2_back_left' },
-    SuspectAnim = { dict = 'mp_arrest_paired', name = 'crook_p2_back_left' },
+    PoliceAnim = {
+        dict = 'mp_arrest_paired',
+        name = 'cop_p2_back_left'
+    },
+
+    SuspectAnim = {
+        dict = 'mp_arrest_paired',
+        name = 'crook_p2_back_left'
+    },
 }
 
+-- ==========================================================
+-- VĚZENÍ
+-- ==========================================================
 Config.Jail = {
     Enabled = true,
 
@@ -74,20 +110,35 @@ Config.Jail = {
     ReleaseCoords = vector4(427.3, -979.5, 30.7, 90.0),
 }
 
+-- ==========================================================
+-- AUTO UNEMPLOYED PŘI WANTED
+-- ==========================================================
 Config.AutoUnemployed = {
     Enabled = true,
     UnemployedJob = 'unemployed',
-    ExemptJobs = {},
+
+    ExemptJobs = {
+        -- např:
+        -- police = true,
+        -- lawyer = true,
+    },
+
     Notify = true,
     NotifyText = 'Jsi hledaný – automaticky jsi vyhozen z práce.',
 }
 
+-- ==========================================================
+-- ODMĚNY ZA ZATČENÍ
+-- ==========================================================
 Config.Rewards = {
     Enabled = true,
     MoneyPerStar = 20000,
     Account = 'bank',
 }
 
+-- ==========================================================
+-- HAPPY HOUR
+-- ==========================================================
 Config.HappyHour = {
     Enabled = true,
     StartHour = 18,
@@ -95,6 +146,9 @@ Config.HappyHour = {
     Multiplier = 2.0,
 }
 
+-- ==========================================================
+-- PRÁVNÍK
+-- ==========================================================
 Config.Lawyer = {
     Enabled = true,
     JobName = 'lawyer',
@@ -102,7 +156,7 @@ Config.Lawyer = {
     CooldownMinutes = 30,
     CooldownTable = 'kg_wanted_lawyer',
 
-    Mode = 'clear',
+    Mode = 'clear', -- 'clear' nebo 'reduce'
     ReduceBy = 1,
 
     MoneyPerStar = 15000,
@@ -112,7 +166,7 @@ Config.Lawyer = {
     ActionTimeMs = 5500,
 
     RequestLabel = 'Požádat o očistu',
-    RequestIcon = 'fa-solid fa-scale-balanced',
+    RequestIcon  = 'fa-solid fa-scale-balanced',
 
     Highlight = {
         Enabled = true,
@@ -124,6 +178,9 @@ Config.Lawyer = {
     }
 }
 
+-- ==========================================================
+-- POLICE DUTY
+-- ==========================================================
 Config.PoliceDuty = {
     Enabled = true,
 
@@ -138,23 +195,37 @@ Config.PoliceDuty = {
     Requirements = {
         Enabled = true,
         Mode = 'items',
+
         ItemMap = {
-            driver = { item = 'driver_license', label = 'Řidičák' },
-            weapon = { item = 'weaponlicense', label = 'Zbrojní průkaz' },
+            driver = {
+                item = 'driver_license',
+                label = 'Řidičák'
+            },
+            weapon = {
+                item = 'weaponlicense',
+                label = 'Zbrojní průkaz'
+            },
         }
     },
 
     Target = {
-        IconOn = 'fa-solid fa-badge',
+        IconOn  = 'fa-solid fa-badge',
         IconOff = 'fa-solid fa-badge',
-        LabelOn = 'Nastoupit službu LSPD',
+        LabelOn  = 'Nastoupit službu LSPD',
         LabelOff = 'Ukončit službu LSPD',
     }
 }
 
+-- ==========================================================
+-- TEST COMMANDS
+-- ==========================================================
 Config.TestCommands = {
     Enabled = true,
+
     UseAcePermission = true,
     AceName = 'kg_wanted.test',
-    AllowedIdentifiers = {},
+
+    AllowedIdentifiers = {
+        -- 'license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    },
 }

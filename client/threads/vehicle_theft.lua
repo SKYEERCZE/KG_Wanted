@@ -1,8 +1,12 @@
 -- KG_Wanted/client/threads/vehicle_theft.lua
--- Wanted for stealing NPC vehicle (not from player)
+-- Robust NPC vehicle theft detection:
+--  - When you become DRIVER of a vehicle
+--  - If IsVehicleStolen(vehicle) == true
+--  - And no other players are in the vehicle
+--  => crime veh_theft_npc (cooldown per vehicle)
 
-local attempts = {} -- [veh] = { npcDriver = bool, noOtherPlayers = bool, t = gameTimer }
-local lastSent = {} -- [plate] = gameTimer
+local lastVeh = 0
+local lastSent = {} -- [key] = gameTimer
 
 local function normPlate(p)
     if not p then return '' end
@@ -24,56 +28,43 @@ end
 
 CreateThread(function()
     while true do
-        Wait(150)
+        Wait(250)
 
         local ped = PlayerPedId()
+        if ped == 0 or not DoesEntityExist(ped) then goto continue end
 
-        -- 1) detect "trying to enter" and remember context
-        local tryingVeh = GetVehiclePedIsTryingToEnter(ped)
-        if tryingVeh and tryingVeh ~= 0 and DoesEntityExist(tryingVeh) then
-            if not attempts[tryingVeh] then
-                local driver = GetPedInVehicleSeat(tryingVeh, -1)
-                local npcDriver = (driver and driver ~= 0 and DoesEntityExist(driver) and not IsPedAPlayer(driver))
-                local otherPlayers = anyOtherPlayerInVehicle(tryingVeh)
-
-                attempts[tryingVeh] = {
-                    npcDriver = npcDriver,
-                    noOtherPlayers = (otherPlayers == false),
-                    t = GetGameTimer()
-                }
-            end
-        end
-
-        -- 2) if you became the driver shortly after -> report NPC theft
         if IsPedInAnyVehicle(ped, false) then
             local veh = GetVehiclePedIsIn(ped, false)
-            if veh and veh ~= 0 and DoesEntityExist(veh) and GetPedInVehicleSeat(veh, -1) == ped then
-                local a = attempts[veh]
-                if a and a.npcDriver and a.noOtherPlayers and (GetGameTimer() - a.t) < 10000 then
-                    local plate = normPlate(GetVehicleNumberPlateText(veh))
-                    if plate == '' then plate = tostring(NetworkGetNetworkIdFromEntity(veh)) end
 
-                    local now = GetGameTimer()
-                    if (lastSent[plate] or 0) + 60000 < now then
-                        lastSent[plate] = now
-                        TriggerServerEvent('kg_wanted:crime', {
-                            type = 'veh_theft_npc',
-                            vehNetId = NetworkGetNetworkIdFromEntity(veh),
-                            dist = 0.0
-                        })
+            if veh ~= 0 and DoesEntityExist(veh) and GetPedInVehicleSeat(veh, -1) == ped then
+                if veh ~= lastVeh then
+                    lastVeh = veh
+
+                    -- ignore if other players are in the car
+                    if anyOtherPlayerInVehicle(veh) then goto continue end
+
+                    -- this is the key: GTA flags stolen vehicles
+                    if IsVehicleStolen(veh) then
+                        local plate = normPlate(GetVehicleNumberPlateText(veh))
+                        local key = plate ~= '' and plate or ('net:' .. tostring(NetworkGetNetworkIdFromEntity(veh)))
+
+                        local now = GetGameTimer()
+                        if (lastSent[key] or 0) + 60000 < now then
+                            lastSent[key] = now
+
+                            TriggerServerEvent('kg_wanted:crime', {
+                                type = 'veh_theft_npc',
+                                vehNetId = NetworkGetNetworkIdFromEntity(veh),
+                                dist = 0.0
+                            })
+                        end
                     end
-
-                    attempts[veh] = nil
                 end
             end
+        else
+            lastVeh = 0
         end
 
-        -- cleanup old attempts
-        local now = GetGameTimer()
-        for veh, a in pairs(attempts) do
-            if not DoesEntityExist(veh) or (now - (a.t or 0)) > 15000 then
-                attempts[veh] = nil
-            end
-        end
+        ::continue::
     end
 end)
