@@ -1,4 +1,9 @@
--- KG_Wanted/client/threads/crime_detection.lua
+-- client/threads/crime_detection.lua
+-- Detect: kill player + run over player (no fist/hurt wanted)
+
+CreateThread(function()
+    KGW = KGW or {}
+end)
 
 AddEventHandler('gameEventTriggered', function(name, args)
     if name ~= 'CEventNetworkEntityDamage' then return end
@@ -11,6 +16,7 @@ AddEventHandler('gameEventTriggered', function(name, args)
     if not DoesEntityExist(victim) or not DoesEntityExist(attacker) then return end
     if not IsEntityAPed(victim) then return end
 
+    -- Only care about PLAYER victims
     local victimPlayer = NetworkGetPlayerIndexFromPed(victim)
     if victimPlayer == -1 then return end
 
@@ -22,15 +28,13 @@ AddEventHandler('gameEventTriggered', function(name, args)
     local vCoords = GetEntityCoords(victim)
     local dist = #(myCoords - vCoords)
 
-    -- =========================
-    -- A) Attacker je PED (ty)
-    -- =========================
+    -- A) Attacker is a PED (player kill)
     if IsEntityAPed(attacker) then
         local attackerPlayer = NetworkGetPlayerIndexFromPed(attacker)
         if attackerPlayer == -1 then return end
         if attackerPlayer ~= PlayerId() then return end
 
-        -- ✅ jen kill se počítá, hurt ignor
+        -- ✅ only KILL counts
         if victimDied then
             TriggerServerEvent('kg_wanted:crime', {
                 type = 'kill',
@@ -41,16 +45,14 @@ AddEventHandler('gameEventTriggered', function(name, args)
         return
     end
 
-    -- =========================
-    -- B) Attacker je VEHICLE (přejetí)
-    -- =========================
+    -- B) Attacker is a VEHICLE (runover)
     if IsEntityAVehicle(attacker) then
         local veh = attacker
         local driver = GetPedInVehicleSeat(veh, -1)
         if not driver or driver == 0 or not DoesEntityExist(driver) then return end
         if NetworkGetPlayerIndexFromPed(driver) ~= PlayerId() then return end
 
-        -- cooldown client-side, ať to nesype eventy
+        -- cooldown so it doesn't spam every tick
         local now = GetGameTimer()
         if (KGW.lastRunoverReport or 0) + 2500 > now then return end
         KGW.lastRunoverReport = now

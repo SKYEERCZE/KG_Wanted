@@ -1,10 +1,12 @@
--- KG_Wanted/server/crime.lua
+-- server/crime.lua
+-- Wanted for: kill player, runover player, steal NPC vehicle
+-- No wanted for fist/hurt
 
+local runoverCd = {} -- [src] = os.time()
 local theftCd = {}   -- theftCd[src][plate] = os.time()
-local runoverCd = {} -- runoverCd[src] = os.time()
 
-local function plateOfVeh(vehNetId)
-    local ent = NetworkGetEntityFromNetworkId(vehNetId or 0)
+local function cleanPlateFromVehNet(netId)
+    local ent = NetworkGetEntityFromNetworkId(netId or 0)
     if ent and ent ~= 0 and DoesEntityExist(ent) then
         local p = GetVehicleNumberPlateText(ent)
         if p then return (p:gsub('%s+', '')) end
@@ -18,7 +20,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
 
     local crimeType = tostring(data.type or '')
     local dist = tonumber(data.dist or 9999.0)
-    if dist > 400.0 then return end
+    if dist > 500.0 then return end
 
     local xAttacker = KGW.ESX.GetPlayerFromId(attacker)
     if not xAttacker then return end
@@ -26,7 +28,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
     local isCop = KGW.isPolice(xAttacker)
 
     -- =========================
-    -- 1) KILL PLAYER
+    -- KILL PLAYER
     -- =========================
     if crimeType == 'kill' then
         local victim = tonumber(data.victim or -1)
@@ -35,7 +37,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
 
         local victimStars = tonumber(Player(victim).state.kg_wanted or 0) or 0
 
-        -- ✅ policajt nezíská hvězdy za zabití wanted
+        -- ✅ Police killing wanted = no stars
         if isCop and victimStars > 0 then return end
 
         local add = tonumber(Config.Stars.KillPlayer or 2) or 2
@@ -44,7 +46,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
         local extra = ''
 
-        -- Police codex: policajt zabije nevinného
+        -- Police codex: police kills innocent
         if isCop and victimStars <= 0 then
             add = add + (Config.Stars.PoliceExtraStars or 1)
 
@@ -74,27 +76,24 @@ RegisterNetEvent('kg_wanted:crime', function(data)
     end
 
     -- =========================
-    -- 2) RUN OVER PLAYER
+    -- RUN OVER PLAYER
     -- =========================
     if crimeType == 'runover' then
         local victim = tonumber(data.victim or -1)
         if victim <= 0 or not GetPlayerName(victim) then return end
         if attacker == victim then return end
 
-        -- cooldown aby to nespamovalo při každém tiku dmg
         local now = os.time()
         if (runoverCd[attacker] or 0) + 5 > now then return end
         runoverCd[attacker] = now
 
         local victimStars = tonumber(Player(victim).state.kg_wanted or 0) or 0
-
-        -- ✅ policajt nezíská hvězdy za přejetí wanted (zásah proti pachateli)
-        if isCop and victimStars > 0 then return end
-
         local died = (data.died == true)
 
-        local add
-        local reason
+        -- ✅ Police running over wanted = no stars
+        if isCop and victimStars > 0 then return end
+
+        local add, reason
         if died then
             add = tonumber(Config.Stars.KillPlayer or 2) or 2
             reason = 'Přejetí hráče (smrt)'
@@ -107,7 +106,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
         local extra = ''
 
-        -- Police codex: policajt přejede nevinného
+        -- Police codex: police runover innocent
         if isCop and victimStars <= 0 then
             add = add + (Config.Stars.PoliceExtraStars or 1)
 
@@ -137,7 +136,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
     end
 
     -- =========================
-    -- 3) NPC VEHICLE THEFT
+    -- NPC VEHICLE THEFT
     -- =========================
     if crimeType == 'veh_theft_npc' then
         local vehNetId = tonumber(data.vehNetId or 0) or 0
@@ -146,15 +145,14 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local add = tonumber(Config.Stars.StealNpcVehicle or 1) or 1
         if add <= 0 then return end
 
-        local p = plateOfVeh(vehNetId) or ('net:' .. tostring(vehNetId))
+        local plate = cleanPlateFromVehNet(vehNetId) or ('net:' .. tostring(vehNetId))
 
         theftCd[attacker] = theftCd[attacker] or {}
         local now = os.time()
-        if (theftCd[attacker][p] or 0) + 60 > now then
-            -- 60s cooldown na stejné auto, ať to nejde farmit
+        if (theftCd[attacker][plate] or 0) + 60 > now then
             return
         end
-        theftCd[attacker][p] = now
+        theftCd[attacker][plate] = now
 
         local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
         KGW.addStars(attacker, add, 'Krádež vozidla (NPC)')
@@ -172,5 +170,5 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         return
     end
 
-    -- ❌ hurt / punch / běžný hit se ignoruje
+    -- ❌ no hurt/fist wanted
 end)

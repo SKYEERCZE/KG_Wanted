@@ -21,6 +21,10 @@ Config.Stars = {
     PoliceExtraStars = 1,
 }
 
+Config.Stars.RunOverPlayer = 1
+Config.Stars.StealNpcVehicle = 1
+
+
 Config.Persistence = {
     Enabled = true,
     Driver = 'auto', -- 'auto' | 'oxmysql' | 'mysql-async'
