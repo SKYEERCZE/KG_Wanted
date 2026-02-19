@@ -7,7 +7,6 @@
 KGW = KGW or {}
 
 local WEAPON_RUN_OVER_BY_CAR = GetHashKey('WEAPON_RUN_OVER_BY_CAR')
-local WEAPON_RAMMED_BY_CAR   = GetHashKey('WEAPON_RAMMED_BY_CAR')
 
 local lastRunoverReport = 0
 
@@ -65,9 +64,16 @@ AddEventHandler('gameEventTriggered', function(name, args)
     -- =========================
     -- RUNOVER (stabilní, už ti jde)
     -- =========================
-    if weaponHash == WEAPON_RUN_OVER_BY_CAR or weaponHash == WEAPON_RAMMED_BY_CAR then
+    if weaponHash == WEAPON_RUN_OVER_BY_CAR then
         local veh = GetVehiclePedIsIn(myPed, false)
         if veh ~= 0 and GetPedInVehicleSeat(veh, -1) == myPed then
+        
+            -- ✅ filtr: počítat jen sražení od 50+ km/h
+            local speedKmh = GetEntitySpeed(veh) * 3.6
+            if speedKmh < 50.0 then
+                return
+            end
+        
             local now = GetGameTimer()
             if now - lastRunoverReport >= 1800 then
                 lastRunoverReport = now

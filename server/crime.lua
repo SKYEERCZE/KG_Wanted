@@ -33,7 +33,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local add = (Config.Stars and Config.Stars.StealNpcVehicle) or 1
         if add <= 0 then return end
 
-        local reason = 'Krádež vozidla (NPC)'
+        local reason = 'Krádež vozidla'
         local extra = ''
 
         -- před
