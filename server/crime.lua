@@ -5,7 +5,7 @@
 local runoverCd = {} -- [src] = os.time()
 local theftCd = {}   -- theftCd[src][plate] = os.time()
 
-local function cleanPlateFromVehNet(netId)
+local function plateFromVehNet(netId)
     local ent = NetworkGetEntityFromNetworkId(netId or 0)
     if ent and ent ~= 0 and DoesEntityExist(ent) then
         local p = GetVehicleNumberPlateText(ent)
@@ -37,7 +37,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
 
         local victimStars = tonumber(Player(victim).state.kg_wanted or 0) or 0
 
-        -- ✅ Police killing wanted = no stars
+        -- police killing wanted => no stars
         if isCop and victimStars > 0 then return end
 
         local add = tonumber(Config.Stars.KillPlayer or 2) or 2
@@ -46,7 +46,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
         local extra = ''
 
-        -- Police codex: police kills innocent
+        -- police codex: police kills innocent
         if isCop and victimStars <= 0 then
             add = add + (Config.Stars.PoliceExtraStars or 1)
 
@@ -90,7 +90,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local victimStars = tonumber(Player(victim).state.kg_wanted or 0) or 0
         local died = (data.died == true)
 
-        -- ✅ Police running over wanted = no stars
+        -- police running over wanted => no stars
         if isCop and victimStars > 0 then return end
 
         local add, reason
@@ -106,7 +106,7 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
         local extra = ''
 
-        -- Police codex: police runover innocent
+        -- police codex: police runover innocent
         if isCop and victimStars <= 0 then
             add = add + (Config.Stars.PoliceExtraStars or 1)
 
@@ -145,13 +145,11 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         local add = tonumber(Config.Stars.StealNpcVehicle or 1) or 1
         if add <= 0 then return end
 
-        local plate = cleanPlateFromVehNet(vehNetId) or ('net:' .. tostring(vehNetId))
+        local plate = plateFromVehNet(vehNetId) or ('net:' .. tostring(vehNetId))
 
         theftCd[attacker] = theftCd[attacker] or {}
         local now = os.time()
-        if (theftCd[attacker][plate] or 0) + 60 > now then
-            return
-        end
+        if (theftCd[attacker][plate] or 0) + 60 > now then return end
         theftCd[attacker][plate] = now
 
         local beforeStars = tonumber(Player(attacker).state.kg_wanted or 0) or 0
@@ -170,5 +168,5 @@ RegisterNetEvent('kg_wanted:crime', function(data)
         return
     end
 
-    -- ❌ no hurt/fist wanted
+    -- no hurt
 end)

@@ -4,7 +4,6 @@ game 'gta5'
 name 'KG_Wanted'
 author 'Kaficko Gaming'
 description 'Simple GTA-style wanted stars + police send-to-jail interaction (ESX job)'
-
 lua54 'yes'
 
 shared_scripts {
@@ -16,7 +15,7 @@ client_scripts {
     'client/_init.lua',
     'client/threads/position.lua',
     'client/threads/crime_detection.lua',
-    'client/threads/vehicle_theft.lua', -- ✅ NEW
+    'client/threads/vehicle_theft.lua',
     'client/threads/wanted_3d.lua',
     'client/threads/lawyer_highlight.lua',
     'client/police_zones.lua',

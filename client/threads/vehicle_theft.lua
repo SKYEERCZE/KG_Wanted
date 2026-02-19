@@ -1,5 +1,5 @@
 -- client/threads/vehicle_theft.lua
--- Wanted for stealing NPC vehicle (NOT from another player)
+-- Wanted za krádež NPC vozidla (best-effort)
 
 local lastSent = {} -- [plate] = GetGameTimer()
 
@@ -23,41 +23,28 @@ end
 
 CreateThread(function()
     while true do
-        Wait(150)
+        Wait(200)
 
         local ped = PlayerPedId()
+        if ped == 0 or not DoesEntityExist(ped) then goto continue end
 
-        -- only when you are the driver
         if IsPedInAnyVehicle(ped, false) then
             local veh = GetVehiclePedIsIn(ped, false)
             if veh ~= 0 and DoesEntityExist(veh) and GetPedInVehicleSeat(veh, -1) == ped then
-                -- must have been recently "trying to enter" (so we detect theft moment)
-                local tryingVeh = GetVehiclePedIsTryingToEnter(ped)
-                if tryingVeh == veh then
-                    local driverBefore = GetPedInVehicleSeat(veh, -1)
+                if anyOtherPlayerInVehicle(veh) then goto continue end
 
-                    -- if any other player is/was in the car -> ignore (player vehicle)
-                    if anyOtherPlayerInVehicle(veh) then
-                        goto continue
-                    end
+                local plate = normPlate(GetVehicleNumberPlateText(veh))
+                if plate == '' then plate = tostring(NetworkGetNetworkIdFromEntity(veh)) end
 
-                    -- if car is owned by NPC / not a player vehicle:
-                    -- simplest rule: it must NOT have been occupied by another player and plate event cooldown
-                    local plate = normPlate(GetVehicleNumberPlateText(veh))
-                    if plate == '' then plate = tostring(NetworkGetNetworkIdFromEntity(veh)) end
+                local now = GetGameTimer()
+                if (lastSent[plate] or 0) + 60000 > now then goto continue end
+                lastSent[plate] = now
 
-                    local now = GetGameTimer()
-                    if (lastSent[plate] or 0) + 60000 > now then
-                        goto continue
-                    end
-                    lastSent[plate] = now
-
-                    TriggerServerEvent('kg_wanted:crime', {
-                        type = 'veh_theft_npc',
-                        vehNetId = NetworkGetNetworkIdFromEntity(veh),
-                        dist = 0.0
-                    })
-                end
+                TriggerServerEvent('kg_wanted:crime', {
+                    type = 'veh_theft_npc',
+                    vehNetId = NetworkGetNetworkIdFromEntity(veh),
+                    dist = 0.0
+                })
             end
         end
 

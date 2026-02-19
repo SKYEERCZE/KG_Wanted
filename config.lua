@@ -12,22 +12,27 @@ Config.HurtCooldownSeconds = 20
 Config.NotifyOnStarsGain = false
 
 Config.Stars = {
+    -- pěstí/hit nechceš počítat, ale nechávám hodnotu pro kompatibilitu (server ho ignoruje)
     HurtPlayer = 1,
+
+    -- zabití hráče
     KillPlayer = 2,
 
+    -- přejetí hráče (pokud neumře)
+    RunOverPlayer = 1,
+
+    -- krádež NPC vozidla
+    StealNpcVehicle = 1,
+
+    -- police codex + extra
     HurtPoliceBonus = 1,
     KillPoliceBonus = 2,
-
     PoliceExtraStars = 1,
 }
 
-Config.Stars.RunOverPlayer = 1
-Config.Stars.StealNpcVehicle = 1
-
-
 Config.Persistence = {
     Enabled = true,
-    Driver = 'auto', -- 'auto' | 'oxmysql' | 'mysql-async'
+    Driver = 'auto',
     Table = 'kg_wanted',
 }
 
@@ -64,13 +69,13 @@ Config.Jail = {
     JailCoords = vector4(459.2, -994.4, 24.9, 90.0),
 
     Cells = {
-        vector4(460.127472,  -994.246155, 24.898926, 272.125977),
-        vector4(459.758240,  -997.832947, 24.898926, 269.291351),
+        vector4(460.127472, -994.246155, 24.898926, 272.125977),
+        vector4(459.758240, -997.832947, 24.898926, 269.291351),
         vector4(459.349457, -1001.538452, 24.898926, 269.291351),
-        vector4(467.775818,  -994.325256, 24.898926, 175.748032),
-        vector4(472.206604,  -994.681335, 24.898926, 184.251968),
-        vector4(476.624176,  -994.246155, 24.898926, 178.582672),
-        vector4(480.909882,  -994.430786, 24.898926, 175.748032),
+        vector4(467.775818, -994.325256, 24.898926, 175.748032),
+        vector4(472.206604, -994.681335, 24.898926, 184.251968),
+        vector4(476.624176, -994.246155, 24.898926, 178.582672),
+        vector4(480.909882, -994.430786, 24.898926, 175.748032),
     },
 
     ReleaseCoords = vector4(427.3, -979.5, 30.7, 90.0),
@@ -79,13 +84,7 @@ Config.Jail = {
 Config.AutoUnemployed = {
     Enabled = true,
     UnemployedJob = 'unemployed',
-
-    -- pokud bys někdy chtěl výjimky:
-    ExemptJobs = {
-        -- police = true,
-        -- lawyer = true,
-    },
-
+    ExemptJobs = {},
     Notify = true,
     NotifyText = 'Jsi hledaný – automaticky jsi vyhozen z práce.',
 }
@@ -120,20 +119,18 @@ Config.Lawyer = {
     ActionTimeMs = 5500,
 
     RequestLabel = 'Požádat o očistu',
-    RequestIcon  = 'fa-solid fa-scale-balanced',
+    RequestIcon = 'fa-solid fa-scale-balanced',
 
-    -- ✅ Highlight lawyer for wanted suspects only
     Highlight = {
         Enabled = true,
-        MarkerType = 2,      -- 2 = vertical arrow marker
+        MarkerType = 2,
         Scale = 0.35,
         Height = 1.15,
         MaxDistance = 60.0,
-        ShowText = false,    -- true = show "PRÁVNÍK" 3D text
+        ShowText = false,
     }
 }
 
--- ✅ POLICE DUTY (ITEMY + přesná hláška)
 Config.PoliceDuty = {
     Enabled = true,
 
@@ -148,28 +145,23 @@ Config.PoliceDuty = {
     Requirements = {
         Enabled = true,
         Mode = 'items',
-
         ItemMap = {
             driver = { item = 'driver_license', label = 'Řidičák' },
-            weapon = { item = 'weaponlicense',  label = 'Zbrojní průkaz' },
+            weapon = { item = 'weaponlicense', label = 'Zbrojní průkaz' },
         }
     },
 
     Target = {
-        IconOn  = 'fa-solid fa-badge',
+        IconOn = 'fa-solid fa-badge',
         IconOff = 'fa-solid fa-badge',
-        LabelOn  = 'Nastoupit službu LSPD',
+        LabelOn = 'Nastoupit službu LSPD',
         LabelOff = 'Ukončit službu LSPD',
     }
 }
 
 Config.TestCommands = {
     Enabled = true,
-
     UseAcePermission = true,
     AceName = 'kg_wanted.test',
-
-    AllowedIdentifiers = {
-        -- 'license:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    },
+    AllowedIdentifiers = {},
 }
